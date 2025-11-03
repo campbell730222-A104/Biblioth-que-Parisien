@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巴黎圖書館轉盤 | Bibliothèques de Paris</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+            color: #F3F4F6;
+            overflow-x: hidden;
+        }
+
+        /* Eiffel tower background */
+        .eiffel-tower {
+            position: fixed;
+            bottom: -5vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60vw;
+            max-width: 900px;
+            height: 110vh;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.12;
+            filter: drop-shadow(0 15px 30px rgba(0,0,0,0.6));
+        }
+
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                #FF6B6B 0deg 30deg,
+                #FFD166 30deg 60deg,
+                #06D6A0 60deg 90deg,
+                #118AB2 90deg 120deg,
+                #9B5CF6 120deg 150deg,
+                #F72585 150deg 180deg,
+                #FF8C42 180deg 210deg,
+                #48CAE4 210deg 240deg,
+                #F15BB5 240deg 270deg,
+                #B8E986 270deg 300deg,
+                #8ECAE6 300deg 330deg,
+                #FFD166 330deg 360deg
+            );
+            transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transform: rotate(0deg);
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 60px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.6);
+        }
+
+        .wheel-container {
+            position: relative;
+            z-index: 20;
+            margin-top: -18vh; /* 較高，放置在鐵塔上方 */
+        }
+
+        .text-item { position: absolute; top: 50%; left: 50%; width: 46%; height: 1px; transform-origin: 0% 0%; }
+        .text-item span {
+            position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+            color: #0F172A; font-weight: 600; font-size: 0.9rem; text-align: right; width: 170px; line-height: 1.1;
+            background: rgba(255,255,255,0.9); color: #0B1220; padding: 6px 8px; border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(2,6,23,0.6);
+        }
+
+        .text-item span:hover { transform: translateY(-50%) scale(1.03); }
+
+        #pointer { width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 30px solid #FF6B6B; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.5)); }
+        #pointer.active { border-top-color: #FFFFFF; }
+
+        /* 對話框樣式 */
+        .speech-bubble {
+            position: fixed;
+            background: #FFFFFF;
+            border-radius: 1rem;
+            padding: 0.75rem 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            font-size: 1.125rem;
+            color: #1F2937;
+            z-index: 100;
+            transform: translate(-50%, -50%);
+            display: none;
+            animation: fadeInOut 1s ease infinite;
+            white-space: nowrap;
+        }
+        .speech-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top-color: #FFFFFF;
+            border-bottom: 0;
+            margin-left: -10px;
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 1; }
+        }
+
+        /* 核彈按鈕樣式 */
+        .nuclear-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #FF4B4B, #CC0000);
+            border: 6px solid #4A5568;
+            box-shadow: 
+                0 0 0 2px #1A202C,
+                inset 0 0 15px rgba(0,0,0,0.5),
+                0 5px 15px rgba(0,0,0,0.5);
+            position: relative;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 1.75rem;
+            color: #FFFFFF;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+        .nuclear-button:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 0 0 2px #1A202C,
+                inset 0 0 20px rgba(0,0,0,0.6),
+                0 5px 20px rgba(255,75,75,0.3);
+        }
+        .nuclear-button:active {
+            transform: scale(0.95);
+        }
+        .nuclear-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        
+
+        .overlay { position: fixed; inset:0; background: rgba(2,6,23,0.7); backdrop-filter: blur(4px); display:none; z-index:40; }
+        .info-card { position: fixed; top:50%; left:50%; transform: translate(-50%,-50%); background: #F9FAFB; color: #0f172a; padding: 2rem; border-radius: 12px; width: min(800px, 92vw); max-height: 80vh; overflow:auto; box-shadow: 0 25px 50px rgba(2,6,23,0.6); display:none; z-index:50; }
+
+        .close-button { position:absolute; top:12px; right:12px; }
+
+        @keyframes towerLight { 0%,100%{opacity:0.08} 50%{opacity:0.18} }
+        .tower-lights { animation: towerLight 2.5s infinite; }
+    </style>
+</head>
+<body>
+    <!-- Eiffel Tower SVG (clear silhouette) -->
+    <div class="eiffel-tower" aria-hidden="true">
+        <svg viewBox="0 0 200 360" preserveAspectRatio="xMidYMid meet" class="w-full h-full text-white">
+            <g fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M100 8 L110 36 L108 46 L116 72 L100 72 L84 72 L92 46 L90 36 Z" />
+                <path d="M40 88 L160 88 L152 116 L48 116 Z" />
+                <path d="M30 116 L170 116 L150 200 L50 200 Z" />
+                <path d="M20 200 L180 200 L160 320 L40 320 Z" />
+                <line x1="100" y1="72" x2="100" y2="320" />
+            </g>
+            <g class="tower-lights" fill="#FFD166" opacity="0.6">
+                <circle cx="100" cy="40" r="2" />
+                <circle cx="100" cy="96" r="2" />
+                <circle cx="100" cy="160" r="2" />
+                <circle cx="80" cy="220" r="2" />
+                <circle cx="120" cy="220" r="2" />
+            </g>
+        </svg>
+    </div>
+
+    <!-- Overlay & Info Card -->
+    <div id="overlay" class="overlay"></div>
+    <div id="infoCard" class="info-card" role="dialog" aria-modal="true">
+        <button onclick="closeInfoCard()" class="close-button" aria-label="Fermer">
+            ✕
+        </button>
+        <h2 id="libraryNameFr" class="text-2xl font-semibold mb-1"></h2>
+        <h3 id="libraryName" class="text-lg text-gray-600 mb-3"></h3>
+        <div id="libraryDesc" class="mb-4 text-gray-700"></div>
+        <div class="border-t border-gray-200 pt-4">
+            <h4 class="font-bold mb-2 text-gray-800">Horaires d'ouverture</h4>
+            <div id="libraryHours" class="space-y-2 text-gray-700"></div>
+        </div>
+    </div>
+
+    <!-- Macron photo as background (placed above tower but behind UI) -->
+    <div class="macron-photo fixed left-1/2 top-0 transform -translate-x-1/2 z-5 pointer-events:none" style="width:480px; max-width:45vw; opacity:1;">
+        <img src="./Image1.png" alt="Macron" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow:0 20px 40px rgba(0,0,0,0.6);">
+    </div>
+
+    <div class="flex flex-col items-center justify-center min-h-screen gap-6 p-6 relative z-30">
+        <div class="wheel-container" style="--wheel-size:16rem;">
+            <div class="relative flex flex-col items-center">
+                <div id="pointer" class="absolute -top-6 z-40"></div>
+
+                <!-- wheelStage groups wheel + overlay (overlay not rotating) -->
+                <div id="wheelStage" class="relative z-40" style="transform: translateY(48vh);">
+                    <div id="wheelWrapper" class="w-64 h-64 sm:w-80 sm:h-80 rounded-full overflow-hidden border-4 border-gray-700 shadow-2xl relative">
+                        <div id="wheel" class="relative w-full h-full">
+                            <div id="wheelText" class="absolute inset-0"></div>
+                        </div>
+                    </div>
+
+                    <!-- finger overlay: simple SVG mask shapes to sit over wheel edges (gives impression of fingers) -->
+                    <svg id="fingerOverlay" viewBox="0 0 200 200" preserveAspectRatio="none" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:100%; height:100%; pointer-events:none; z-index:50;">
+                        <!-- left finger -->
+                        <path d="M40 120 C30 110, 30 90, 45 80 C55 75, 65 78, 70 85 C75 92, 70 110, 60 120 Z" fill="rgba(15,17,26,0.85)" />
+                        <!-- right finger -->
+                        <path d="M160 120 C170 110, 170 90, 155 80 C145 75, 135 78, 130 85 C125 92, 130 110, 140 120 Z" fill="rgba(15,17,26,0.85)" />
+                        <!-- slight top finger overlay (thumb) -->
+                        <path d="M100 20 C92 24, 88 38, 96 46 C104 54, 118 52, 122 44 C126 36, 112 18, 100 20 Z" fill="rgba(15,17,26,0.6)" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- 轉動狀態對話框 -->
+        <div id="spinStatus" class="speech-bubble" style="left: 50%; top: 15%;">En rotation... | 轉動中...</div>
+
+        <div id="resultBox" class="text-lg font-light h-16 text-center text-gray-300 mt-2 z-30">Cliquez pour choisir une bibliothèque · 點擊選擇圖書館</div>
+
+        <button id="spinButton" class="nuclear-button mt-64 pt-32 z-30" title="Tourner | 開始旋轉">▶</button>
+
+        <h1 class="text-3xl font-light tracking-tight text-center mt-8 pt-16 mb-8">
+            <span class="font-normal">Bibliothèques de Paris</span><br>
+            <span class="text-xl text-gray-300">巴黎圖書館轉盤</span>
+        </h1>
+    </div>
+
+
+
+    <script>
+    // 完整圖書館資料陣列
+    const libraries = [
+        {
+            fr: "BnF François-Mitterrand",
+            zh: "法國國家圖書館新館",
+            description: "La plus grande bibliothèque de France, un bâtiment moderne avec des collections riches | 法國最大的圖書館，現代化建築，擁有豐富的館藏",
+            hours: { public: { title: "Bibliothèque tous publics", times: ["Lundi - Vendredi: 10h - 20h | 週一至週五 10:00-20:00", "Samedi: 10h - 20h | 週六 10:00-20:00", "Dimanche: 13h - 19h | 週日 13:00-19:00"] }, research: { title: "Bibliothèque de recherche | 研究圖書館", times: ["Lundi: 14h - 20h | 週一 14:00-20:00", "Mardi - Samedi: 9h - 20h | 週二至週六 9:00-20:00", "Fermé le dimanche | 週日休館"] } }
+        },
+        { fr: "Bibliothèque Mazarine", zh: "馬薩蘭圖書館", description: "La plus ancienne bibliothèque publique de France | 法國最古老的公共圖書館", hours: { regular: { title: "Horaires d'ouverture | 開放時間", times: ["Lundi - Samedi: 10h - 18h | 週一至週六 10:00-18:00", "Fermé le dimanche | 週日休館", "Fermé du 1er au 15 août | 8月1日至15日關閉"] } } },
+        { fr: "Bibliothèque Sainte-Geneviève", zh: "聖熱內維耶夫圖書館", description: "Une bibliothèque universitaire historique | 歷史悠久的學術圖書館", hours: { regular: { title: "Horaires d'ouverture | 開放時間", times: ["Lundi - Samedi: 10h - 22h | 週一至週六 10:00-22:00", "Service d'inscription: 10h - 18h50 | 登記服務時間 10:00-18:50", "Fermé le dimanche et les jours fériés | 週日及大部分法定假日休館"] } } },
+        { fr: "BnF Richelieu", zh: "法國國家圖書館黎塞留館", description: "Site historique de la BnF, collections de manuscrits et d'œuvres d'art | 法國國家圖書館歷史館址，收藏珍貴手稿和藝術品", hours: { research: { title: "Salle de lecture | 研究圖書館閱覽室", times: ["Lundi: 14h - 19h | 週一 14:00-19:00", "Mardi - Vendredi: 9h - 19h | 週二至週五 9:00-19:00", "Samedi: 9h - 18h | 週六 9:00-18:00", "Fermé le dimanche | 週日休館"] }, museum: { title: "Musée et expositions | 博物館及臨時展覽", times: ["Lundi: 10h - 20h | 週一 10:00-20:00", "Mardi - Dimanche: 10h - 18h | 週二至週日 10:00-18:00"] } } },
+        { fr: "Bibliothèque Forney", zh: "福爾內圖書館", description: "Bibliothèque spécialisée en art et design | 藝術與設計專業圖書館", hours: { regular: { title: "Horaires d'ouverture | 開放時間", times: ["Mardi - Vendredi: 11h - 19h | 週二至週五 11:00-19:00", "Samedi: 12h - 19h | 週六 12:00-19:00", "Fermé dimanche et lundi | 週日、週一休館", "Horaires modifiés pendant les vacances | 暑期及學校假期時間可能調整"] } } },
+        { fr: "Bibliothèque de l'Arsenal", zh: "軍械庫圖書館", description: "Bibliothèque spécialisée en littérature et art | 專門收藏文學和藝術作品的圖書館", hours: { research: { title: "Bibliothèque de recherche | 研究圖書館", times: ["Lundi: 14h - 19h | 週一 14:00-19:00", "Mardi - Vendredi: 10h - 19h | 週二至週五 10:00-19:00", "Samedi: 10h - 18h | 週六 10:00-18:00", "Fermé le dimanche | 週日休館"] } } },
+        { fr: "Bibliothèque Historique de la Ville de Paris", zh: "巴黎市歷史圖書館", description: "Bibliothèque spécialisée dans l'histoire de Paris | 收藏巴黎歷史文獻的專門圖書館", hours: { regular: { title: "Horaires d'ouverture | 開放時間", times: ["Lundi - Samedi: 9h - 19h | 週一至週六 9:00-19:00", "Dimanche: 10h - 19h | 週日 10:00-19:00"] } } },
+        { fr: "Bpi Centre Pompidou", zh: "龐畢度公共資訊圖書館", description: "Bibliothèque multimédia moderne située dans le Centre Pompidou | 現代化多媒體圖書館，位於龐畢度中心內", hours: { regular: { title: "Horaires d'ouverture | 開放時間", times: ["Lundi, Mercredi - Vendredi: 12h - 22h | 週一、三、四、五 12:00-22:00", "Samedi, Dimanche et jours fériés: 11h - 22h | 週六、日及法定假日 11:00-22:00", "Fermé le mardi | 週二休館", "Note: Travaux de rénovation à partir de mars 2025 | 注意：2025年3月起將進行整修工程"] } } },
+        { fr: "Bibliothèque Ulm-LSH", zh: "高等師範學院圖書館", description: "Bibliothèque d'une des plus prestigieuses écoles de recherche | 法國最負盛名的研究型學校之一的圖書館", hours: { semester: { title: "Période universitaire (septembre - juin) | 學期期間", times: ["Lundi - Vendredi: 9h - 20h | 週一至週五 9:00-20:00", "Samedi: 9h - 19h | 週六 9:00-19:00", "Fermé le dimanche | 週日休館"] } } },
+        { fr: "Bibliothèque des Arts Décoratifs", zh: "裝飾藝術圖書館", description: "Collections riches en art décoratif, mode et artisanat | 收藏豐富的藝術設計資源，專注裝飾藝術、時尚和工藝", hours: { winter: { title: "Période d'hiver (octobre - mai) | 冬季時段", times: ["Lundi - Vendredi: 10h - 21h | 週一至週五 10:00-21:00"] }, summer: { title: "Période d'été (juin - septembre) | 夏季時段", times: ["Lundi - Vendredi: 10h - 17h | 週一至週五 10:00-17:00", "Fermé pendant les vacances de Noël et en août | 聖誕假期及8月閉館"] } } },
+        { fr: "Bibliothèque INHA", zh: "藝術史國家研究所圖書館", description: "Bibliothèque spécialisée en histoire de l'art | 專門收藏藝術史研究資料的重要學術圖書館", hours: { regular: { title: "Horaires d'ouverture | 開放時間", times: ["Lundi: 14h - 19h30 | 週一 14:00-19:30", "Mardi - Vendredi: 9h - 19h30 | 週二至週五 9:00-19:30", "Samedi: 9h - 18h30 | 週六 9:00-18:30", "Fermé le dimanche | 週日休館", "Horaires d'été (juillet-août): fermeture à 18h30 | 7-8月營業時間縮短至18:30"] } } },
+        { fr: "Médiathèque d'étude et de recherche", zh: "研究媒體圖書館", description: "Centre de ressources documentaires et médiatiques pour la recherche | 提供豐富的研究資源和媒體資料的專門圖書館", hours: { regular: { title: "Horaires d'ouverture | 開放時間", times: ["Lundi et Dimanche: fermé | 週一及週日休館","Mardi - Mercredi: 10h30 - 19h | 週二至週三 10:30-19:00","Jeudi: 10h30 - 20h | 週四 10:30-20:00","Vendredi - Samedi: 10h30 - 19h | 週五至週六 10:30-19:00"] } } },
+        { fr: "Bibliothèque Sorbonne", zh: "索邦大學圖書館", description: "Une des plus anciennes bibliothèques universitaires de France | 法國最古老的大學圖書館之一", hours: { semester: { title: "Période universitaire (22 sept - 20 juin) | 學期期間", times: ["Lundi, Mardi, Mercredi, Vendredi: 9h - 20h | 週一、二、三、五 9:00-20:00", "Jeudi: 12h - 20h | 週四 12:00-20:00", "Samedi: 10h - 19h | 週六 10:00-19:00", "Fermé le dimanche | 週日休館"] } } },
+        { fr: "Bibliothèque Cité U", zh: "國際大學城圖書館", description: "Bibliothèque de la Cité Internationale Universitaire de Paris | 位於巴黎國際大學城內，服務來自世界各地的學生", hours: { semester: { title: "Période universitaire | 學期期間", times: ["Lundi - Vendredi: 10h - 22h | 週一至週五 10:00-22:00", "Samedi - Dimanche: 13h - 19h | 週六、日 13:00-19:00"] }, summer: { title: "Période d'été | 暑期時段", times: ["Lundi - Vendredi: 10h - 19h | 週一至週五 10:00-19:00", "Fermé le weekend et jours fériés | 週末及法定假日休館"] } } }
+    ];
+
+    // DOM references
+    const wheel = document.getElementById('wheel');
+    const wheelText = document.getElementById('wheelText');
+    const spinButton = document.getElementById('spinButton');
+    const resultBox = document.getElementById('resultBox');
+    const infoCard = document.getElementById('infoCard');
+    const overlay = document.getElementById('overlay');
+    const pointer = document.getElementById('pointer');
+
+    // setup wheel labels
+    function setupWheel() {
+        const anglePer = 360 / libraries.length;
+        wheelText.innerHTML = libraries.map((lib, i) => {
+            const angle = anglePer * i + anglePer / 2;
+            return `<div class="text-item" style="transform: rotate(${angle}deg);"><span>${lib.fr}</span></div>`;
+        }).join('');
+    }
+
+    // show library info
+    function showLibraryInfo(library) {
+        document.getElementById('libraryNameFr').textContent = library.fr;
+        document.getElementById('libraryName').textContent = library.zh;
+        document.getElementById('libraryDesc').textContent = library.description;
+        const hoursDiv = document.getElementById('libraryHours'); hoursDiv.innerHTML = '';
+        Object.values(library.hours).forEach(section => {
+            const sec = document.createElement('div'); sec.className = 'mb-4';
+            sec.innerHTML = `<h5 class="font-medium mb-1">${section.title}</h5>` + section.times.map(t => `<p class="text-sm text-gray-700">${t}</p>`).join('');
+            hoursDiv.appendChild(sec);
+        });
+        overlay.style.display = 'block'; infoCard.style.display = 'block';
+    }
+
+    function closeInfoCard() { overlay.style.display = 'none'; infoCard.style.display = 'none'; }
+    overlay.addEventListener('click', closeInfoCard);
+
+    // spin logic
+    let currentRotation = 0; let isSpinning = false;
+    const spinStatus = document.getElementById('spinStatus');
+    
+    spinButton.addEventListener('click', () => {
+        if (isSpinning) return;
+        isSpinning = true;
+        spinButton.disabled = true;
+        pointer.classList.add('active');
+        // 顯示對話框
+        spinStatus.style.display = 'block';
+        resultBox.textContent = '';
+
+        const base = 1800;
+        const offset = Math.floor(Math.random() * 360);
+        const total = base + offset;
+        currentRotation += total;
+        wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+        setTimeout(() => {
+            isSpinning = false;
+            spinButton.disabled = false;
+            pointer.classList.remove('active');
+            // 隱藏對話框
+            spinStatus.style.display = 'none';
+            
+            const finalAngle = (360 - (currentRotation % 360)) % 360;
+            const index = Math.floor(finalAngle / (360 / libraries.length)) % libraries.length;
+            const lib = libraries[index];
+            resultBox.innerHTML = `${lib.fr}<br>${lib.zh}`;
+            showLibraryInfo(lib);
+        }, 4200);
+    });
+
+    // init
+    setupWheel();
+    
+    // Initialize important DOM references
+    const wheelStage = document.getElementById('wheelStage');
+    const wheelWrapper = document.getElementById('wheelWrapper');
+
+    // Click-to-select: compute angle from wheel center to click and pick segment
+    document.getElementById('wheel').addEventListener('click', e => {
+        // ignore clicks during spin
+        if (isSpinning) return;
+        // wheel bounding box in page coordinates
+        const rect = wheel.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        const angle = (Math.atan2(dy, dx) * 180 / Math.PI + 360) % 360; // 0 is to the right
+        // Convert angle to segment index; wheel text uses rotated segments, so adjust
+        const segmentAngle = 360 / libraries.length;
+        // Our mapping: angle 0 (right) corresponds to segment centered at segmentAngle/2
+        const adjusted = (angle - segmentAngle/2 + 360) % 360;
+        const idx = Math.floor(adjusted / segmentAngle) % libraries.length;
+        const lib = libraries[idx];
+        // show info
+        resultBox.innerHTML = `${lib.fr}<br>${lib.zh}`;
+        showLibraryInfo(lib);
+    });
+    </script>
+</body>
+</html>
