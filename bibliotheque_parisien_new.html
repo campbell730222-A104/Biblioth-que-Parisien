@@ -18,20 +18,20 @@
             border-radius: 50%;
             background: conic-gradient(
                 from 0deg,
-                #374151 0deg 25.7deg,
-                #4B5563 25.7deg 51.4deg,
-                #6B7280 51.4deg 77.1deg,
-                #4B5563 77.1deg 102.8deg,
-                #374151 102.8deg 128.5deg,
-                #4B5563 128.5deg 154.2deg,
-                #6B7280 154.2deg 179.9deg,
-                #4B5563 179.9deg 205.6deg,
-                #374151 205.6deg 231.3deg,
-                #4B5563 231.3deg 257deg,
-                #6B7280 257deg 282.7deg,
-                #4B5563 282.7deg 308.4deg,
-                #374151 308.4deg 334.1deg,
-                #4B5563 334.1deg 360deg
+                #FF1E1E 0deg 25.7deg,
+                #FFB700 25.7deg 51.4deg,
+                #00D1B2 51.4deg 77.1deg,
+                #00B4D8 77.1deg 102.8deg,
+                #8B5CF6 102.8deg 128.5deg,
+                #EC4899 128.5deg 154.2deg,
+                #F97316 154.2deg 179.9deg,
+                #3B82F6 179.9deg 205.6deg,
+                #FF1E1E 205.6deg 231.3deg,
+                #FFB700 231.3deg 257deg,
+                #00D1B2 257deg 282.7deg,
+                #00B4D8 282.7deg 308.4deg,
+                #8B5CF6 308.4deg 334.1deg,
+                #EC4899 334.1deg 360deg
             );
             transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
             transform: rotate(0deg);
@@ -80,7 +80,7 @@
             height: 0;
             border-left: 20px solid transparent;
             border-right: 20px solid transparent;
-            border-top: 30px solid #9CA3AF;
+            border-top: 30px solid #FF1E1E;
             filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4));
             transition: border-top-color 0.3s ease;
         }
@@ -92,7 +92,7 @@
         .wheel-center-dot {
             width: 25px;
             height: 25px;
-            background: #9CA3AF;
+            background: #FFB700;
             border-radius: 50%;
             border: 4px solid #F3F4F6;
             position: absolute;
@@ -162,8 +162,8 @@
             <h3 class="text-xl text-gray-600 mb-4" id="libraryName"></h3>
             <div class="mb-6 text-gray-600" id="libraryDesc"></div>
             <div class="border-t border-gray-200 pt-4">
-                <h4 class="font-medium mb-4 text-gray-800">Horaires d'ouverture | 營業時間</h4>
-                <div id="libraryHours" class="space-y-4 text-gray-600"></div>
+                                                <h4 class="font-bold mb-4 text-gray-800">Horaires d'ouverture</h4>
+                <div id="libraryHours" class="space-y-2 text-gray-600"></div>
             </div>
         </div>
     </div>
@@ -186,7 +186,7 @@
             <div class="wheel-center-dot"></div>
         </div>
 
-        <button id="spinButton" class="py-3 px-10 bg-gray-700 text-gray-100 text-xl font-light rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900">
+        <button id="spinButton" class="py-3 px-10 bg-red-500 text-gray-100 text-xl font-light rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900">
             Tourner | 開始旋轉
         </button>
 
@@ -196,15 +196,15 @@
     </div>
 
     <script>
-    // 圖書館資料
+    // 圖書館資料，保持所有圖書館資訊
     const libraries = [
         {
-            zh: "法國國家圖書館新館",
             fr: "BnF François-Mitterrand",
+            zh: "法國國家圖書館新館",
             description: "La plus grande bibliothèque de France, un bâtiment moderne avec des collections riches | 法國最大的圖書館，現代化建築，擁有豐富的館藏",
             hours: {
                 public: {
-                    title: "Bibliothèque tous publics | 對大眾開放的圖書館",
+                    title: "Bibliothèque tous publics",
                     times: [
                         "Lundi - Vendredi: 10h - 20h | 週一至週五 10:00-20:00",
                         "Samedi: 10h - 20h | 週六 10:00-20:00",
@@ -221,7 +221,226 @@
                 }
             }
         },
-        // ... [其他圖書館資料保持相同格式，只需調整顯示順序：先法文後中文]
+        {
+            fr: "Bibliothèque Mazarine",
+            zh: "馬薩蘭圖書館",
+            description: "La plus ancienne bibliothèque publique de France | 法國最古老的公共圖書館",
+            hours: {
+                regular: {
+                    title: "Horaires d'ouverture | 開放時間",
+                    times: [
+                        "Lundi - Samedi: 10h - 18h | 週一至週六 10:00-18:00",
+                        "Fermé le dimanche | 週日休館",
+                        "Fermé du 1er au 15 août | 8月1日至15日關閉"
+                    ]
+                }
+            }
+        },
+        {
+            fr: "Bibliothèque Sainte-Geneviève",
+            zh: "聖熱內維耶夫圖書館",
+            description: "Une bibliothèque universitaire historique | 歷史悠久的學術圖書館",
+            hours: {
+                regular: {
+                    title: "Horaires d'ouverture | 開放時間",
+                    times: [
+                        "Lundi - Samedi: 10h - 22h | 週一至週六 10:00-22:00",
+                        "Service d'inscription: 10h - 18h50 | 登記服務時間 10:00-18:50",
+                        "Fermé le dimanche et les jours fériés | 週日及大部分法定假日休館"
+                    ]
+                }
+            }
+        },
+        {
+            fr: "BnF Richelieu",
+            zh: "法國國家圖書館黎塞留館",
+            description: "Site historique de la BnF, collections de manuscrits et d'œuvres d'art | 法國國家圖書館歷史館址，收藏珍貴手稿和藝術品",
+            hours: {
+                research: {
+                    title: "Salle de lecture | 研究圖書館閱覽室",
+                    times: [
+                        "Lundi: 14h - 19h | 週一 14:00-19:00",
+                        "Mardi - Vendredi: 9h - 19h | 週二至週五 9:00-19:00",
+                        "Samedi: 9h - 18h | 週六 9:00-18:00",
+                        "Fermé le dimanche | 週日休館"
+                    ]
+                },
+                museum: {
+                    title: "Musée et expositions | 博物館及臨時展覽",
+                    times: [
+                        "Lundi: 10h - 20h | 週一 10:00-20:00",
+                        "Mardi - Dimanche: 10h - 18h | 週二至週日 10:00-18:00"
+                    ]
+                }
+            }
+        },
+        {
+            fr: "Bibliothèque Forney",
+            zh: "福爾內圖書館",
+            description: "Bibliothèque spécialisée en art et design | 藝術與設計專業圖書館",
+            hours: {
+                regular: {
+                    title: "Horaires d'ouverture | 開放時間",
+                    times: [
+                        "Mardi - Vendredi: 11h - 19h | 週二至週五 11:00-19:00",
+                        "Samedi: 12h - 19h | 週六 12:00-19:00",
+                        "Fermé dimanche et lundi | 週日、週一休館",
+                        "Horaires modifiés pendant les vacances | 暑期及學校假期時間可能調整"
+                    ]
+                }
+            }
+        },
+        {
+            fr: "Bibliothèque de l'Arsenal",
+            zh: "軍械庫圖書館",
+            description: "Bibliothèque spécialisée en littérature et art | 專門收藏文學和藝術作品的圖書館",
+            hours: {
+                research: {
+                    title: "Bibliothèque de recherche | 研究圖書館",
+                    times: [
+                        "Lundi: 14h - 19h | 週一 14:00-19:00",
+                        "Mardi - Vendredi: 10h - 19h | 週二至週五 10:00-19:00",
+                        "Samedi: 10h - 18h | 週六 10:00-18:00",
+                        "Fermé le dimanche | 週日休館"
+                    ]
+                }
+            }
+        },
+        {
+            fr: "Bibliothèque Historique de la Ville de Paris",
+            zh: "巴黎市歷史圖書館",
+            description: "Bibliothèque spécialisée dans l'histoire de Paris | 收藏巴黎歷史文獻的專門圖書館",
+            hours: {
+                regular: {
+                    title: "Horaires d'ouverture | 開放時間",
+                    times: [
+                        "Lundi - Samedi: 9h - 19h | 週一至週六 9:00-19:00",
+                        "Dimanche: 10h - 19h | 週日 10:00-19:00"
+                    ]
+                }
+            }
+        },
+        {
+            fr: "Bpi Centre Pompidou",
+            zh: "龐畢度公共資訊圖書館",
+            description: "Bibliothèque multimédia moderne située dans le Centre Pompidou | 現代化多媒體圖書館，位於龐畢度中心內",
+            hours: {
+                regular: {
+                    title: "Horaires d'ouverture | 開放時間",
+                    times: [
+                        "Lundi, Mercredi - Vendredi: 12h - 22h | 週一、三、四、五 12:00-22:00",
+                        "Samedi, Dimanche et jours fériés: 11h - 22h | 週六、日及法定假日 11:00-22:00",
+                        "Fermé le mardi | 週二休館",
+                        "Note: Travaux de rénovation à partir de mars 2025 | 注意：2025年3月起將進行整修工程"
+                    ]
+                }
+            }
+        },
+        {
+            fr: "Bibliothèque Ulm-LSH",
+            zh: "高等師範學院圖書館",
+            description: "Bibliothèque d'une des plus prestigieuses écoles de recherche | 法國最負盛名的研究型學校之一的圖書館",
+            hours: {
+                semester: {
+                    title: "Période universitaire (septembre - juin) | 學期期間",
+                    times: [
+                        "Lundi - Vendredi: 9h - 20h | 週一至週五 9:00-20:00",
+                        "Samedi: 9h - 19h | 週六 9:00-19:00",
+                        "Fermé le dimanche | 週日休館"
+                    ]
+                }
+            }
+        },
+        {
+            fr: "Bibliothèque des Arts Décoratifs",
+            zh: "裝飾藝術圖書館",
+            description: "Collections riches en art décoratif, mode et artisanat | 收藏豐富的藝術設計資源，專注裝飾藝術、時尚和工藝",
+            hours: {
+                winter: {
+                    title: "Période d'hiver (octobre - mai) | 冬季時段",
+                    times: [
+                        "Lundi - Vendredi: 10h - 21h | 週一至週五 10:00-21:00"
+                    ]
+                },
+                summer: {
+                    title: "Période d'été (juin - septembre) | 夏季時段",
+                    times: [
+                        "Lundi - Vendredi: 10h - 17h | 週一至週五 10:00-17:00",
+                        "Fermé pendant les vacances de Noël et en août | 聖誕假期及8月閉館"
+                    ]
+                }
+            }
+        },
+        {
+            fr: "Bibliothèque INHA",
+            zh: "藝術史國家研究所圖書館",
+            description: "Bibliothèque spécialisée en histoire de l'art | 專門收藏藝術史研究資料的重要學術圖書館",
+            hours: {
+                regular: {
+                    title: "Horaires d'ouverture | 開放時間",
+                    times: [
+                        "Lundi: 14h - 19h30 | 週一 14:00-19:30",
+                        "Mardi - Vendredi: 9h - 19h30 | 週二至週五 9:00-19:30",
+                        "Samedi: 9h - 18h30 | 週六 9:00-18:30",
+                        "Fermé le dimanche | 週日休館",
+                        "Horaires d'été (juillet-août): fermeture à 18h30 | 7-8月營業時間縮短至18:30"
+                    ]
+                }
+            }
+        },
+        {
+            fr: "Médiathèque d'étude et de recherche",
+            zh: "研究媒體圖書館",
+            description: "Centre de ressources documentaires et médiatiques pour la recherche | 提供豐富的研究資源和媒體資料的專門圖書館",
+            hours: {
+                regular: {
+                    title: "Horaires d'ouverture | 開放時間",
+                    times: [
+                        "Lundi et Dimanche: fermé | 週一及週日休館",
+                        "Mardi - Mercredi: 10h30 - 19h | 週二至週三 10:30-19:00",
+                        "Jeudi: 10h30 - 20h | 週四 10:30-20:00",
+                        "Vendredi - Samedi: 10h30 - 19h | 週五至週六 10:30-19:00"
+                    ]
+                }
+            }
+        },
+        {
+            fr: "Bibliothèque Sorbonne",
+            zh: "索邦大學圖書館",
+            description: "Une des plus anciennes bibliothèques universitaires de France | 法國最古老的大學圖書館之一",
+            hours: {
+                semester: {
+                    title: "Période universitaire (22 sept - 20 juin) | 學期期間",
+                    times: [
+                        "Lundi, Mardi, Mercredi, Vendredi: 9h - 20h | 週一、二、三、五 9:00-20:00",
+                        "Jeudi: 12h - 20h | 週四 12:00-20:00",
+                        "Samedi: 10h - 19h | 週六 10:00-19:00",
+                        "Fermé le dimanche | 週日休館"
+                    ]
+                }
+            }
+        },
+        {
+            fr: "Bibliothèque Cité U",
+            zh: "國際大學城圖書館",
+            description: "Bibliothèque de la Cité Internationale Universitaire de Paris | 位於巴黎國際大學城內，服務來自世界各地的學生",
+            hours: {
+                semester: {
+                    title: "Période universitaire | 學期期間",
+                    times: [
+                        "Lundi - Vendredi: 10h - 22h | 週一至週五 10:00-22:00",
+                        "Samedi - Dimanche: 13h - 19h | 週六、日 13:00-19:00"
+                    ]
+                },
+                summer: {
+                    title: "Période d'été | 暑期時段",
+                    times: [
+                        "Lundi - Vendredi: 10h - 19h | 週一至週五 10:00-19:00",
+                        "Fermé le weekend et jours fériés | 週末及法定假日休館"
+                    ]
+                }
+            }
+        }
     ];
 
     // 初始化變數
