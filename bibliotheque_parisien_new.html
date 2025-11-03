@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巴黎圖書館轉盤 | Bibliothèques de Paris</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+        }
+
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                #374151 0deg 25.7deg,
+                #4B5563 25.7deg 51.4deg,
+                #6B7280 51.4deg 77.1deg,
+                #4B5563 77.1deg 102.8deg,
+                #374151 102.8deg 128.5deg,
+                #4B5563 128.5deg 154.2deg,
+                #6B7280 154.2deg 179.9deg,
+                #4B5563 179.9deg 205.6deg,
+                #374151 205.6deg 231.3deg,
+                #4B5563 231.3deg 257deg,
+                #6B7280 257deg 282.7deg,
+                #4B5563 282.7deg 308.4deg,
+                #374151 308.4deg 334.1deg,
+                #4B5563 334.1deg 360deg
+            );
+            transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transform: rotate(0deg);
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.2);
+        }
+
+        .text-item {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 43%;
+            height: 1px;
+            transform-origin: 0% 0%;
+        }
+        
+        .text-item span {
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #F3F4F6;
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-align: right;
+            width: 160px;
+            line-height: 1.2;
+            letter-spacing: 0.02em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+            font-family: 'Inter', sans-serif;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+        }
+        
+        .text-item span:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        #pointer {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #9CA3AF;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4));
+            transition: border-top-color 0.3s ease;
+        }
+
+        #pointer.active {
+            border-top-color: #F3F4F6;
+        }
+
+        .wheel-center-dot {
+            width: 25px;
+            height: 25px;
+            background: #9CA3AF;
+            border-radius: 50%;
+            border: 4px solid #F3F4F6;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .info-card {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #F9FAFB;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 90vw;
+            width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: none;
+            z-index: 50;
+            border: 1px solid #E5E7EB;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            z-index: 40;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            color: #6B7280;
+            transition: all 0.3s ease;
+        }
+
+        .close-button:hover {
+            background: #F3F4F6;
+            color: #111827;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="overlay" id="overlay"></div>
+    <div class="info-card" id="infoCard">
+        <div class="text-gray-900 relative">
+            <button onclick="closeInfoCard()" class="close-button">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h2 class="text-2xl font-medium mb-2" id="libraryNameFr"></h2>
+            <h3 class="text-xl text-gray-600 mb-4" id="libraryName"></h3>
+            <div class="mb-6 text-gray-600" id="libraryDesc"></div>
+            <div class="border-t border-gray-200 pt-4">
+                <h4 class="font-medium mb-4 text-gray-800">Horaires d'ouverture | 營業時間</h4>
+                <div id="libraryHours" class="space-y-4 text-gray-600"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-col items-center justify-center min-h-screen gap-10 p-6">
+        <h1 class="text-4xl font-light tracking-tight text-gray-100">
+            <span class="font-normal">Bibliothèques de Paris</span><br>
+            <span class="text-2xl text-gray-400">巴黎圖書館轉盤</span>
+        </h1>
+
+        <div class="relative flex flex-col items-center">
+            <div id="pointer" class="absolute -top-4 z-20"></div>
+            <div class="w-80 h-80 sm:w-96 sm:h-96 rounded-full overflow-hidden border-4 border-gray-700 shadow-2xl bg-gray-800">
+                <div id="wheel" class="relative w-full h-full">
+                    <div class="absolute inset-0" id="wheelText">
+                        <!-- JavaScript will populate this -->
+                    </div>
+                </div>
+            </div>
+            <div class="wheel-center-dot"></div>
+        </div>
+
+        <button id="spinButton" class="py-3 px-10 bg-gray-700 text-gray-100 text-xl font-light rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900">
+            Tourner | 開始旋轉
+        </button>
+
+        <div id="resultBox" class="text-xl font-light h-16 text-center text-gray-400">
+            Cliquez pour choisir une bibliothèque<br>點擊按鈕選擇圖書館
+        </div>
+    </div>
+
+    <script>
+    // 圖書館資料
+    const libraries = [
+        {
+            zh: "法國國家圖書館新館",
+            fr: "BnF François-Mitterrand",
+            description: "La plus grande bibliothèque de France, un bâtiment moderne avec des collections riches | 法國最大的圖書館，現代化建築，擁有豐富的館藏",
+            hours: {
+                public: {
+                    title: "Bibliothèque tous publics | 對大眾開放的圖書館",
+                    times: [
+                        "Lundi - Vendredi: 10h - 20h | 週一至週五 10:00-20:00",
+                        "Samedi: 10h - 20h | 週六 10:00-20:00",
+                        "Dimanche: 13h - 19h | 週日 13:00-19:00"
+                    ]
+                },
+                research: {
+                    title: "Bibliothèque de recherche | 研究圖書館",
+                    times: [
+                        "Lundi: 14h - 20h | 週一 14:00-20:00",
+                        "Mardi - Samedi: 9h - 20h | 週二至週六 9:00-20:00",
+                        "Fermé le dimanche | 週日休館"
+                    ]
+                }
+            }
+        },
+        // ... [其他圖書館資料保持相同格式，只需調整顯示順序：先法文後中文]
+    ];
+
+    // 初始化變數
+    const wheel = document.getElementById('wheel');
+    const spinButton = document.getElementById('spinButton');
+    const resultBox = document.getElementById('resultBox');
+    const infoCard = document.getElementById('infoCard');
+    const overlay = document.getElementById('overlay');
+    const wheelText = document.getElementById('wheelText');
+    const pointer = document.getElementById('pointer');
+
+    // 設置轉盤文字 - 只顯示法文名稱
+    function setupWheel() {
+        const anglePerSegment = 360 / libraries.length;
+        wheelText.innerHTML = libraries.map((lib, index) => `
+            <div class="text-item" style="transform: rotate(${anglePerSegment * index + anglePerSegment/2}deg);">
+                <span>${lib.fr}</span>
+            </div>
+        `).join('');
+    }
+
+    // 顯示圖書館資訊
+    function showLibraryInfo(library) {
+        document.getElementById('libraryNameFr').textContent = library.fr;
+        document.getElementById('libraryName').textContent = library.zh;
+        document.getElementById('libraryDesc').textContent = library.description;
+        
+        const hoursDiv = document.getElementById('libraryHours');
+        hoursDiv.innerHTML = '';
+        
+        Object.values(library.hours).forEach(section => {
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'mb-6 last:mb-0';
+            sectionDiv.innerHTML = `
+                <h5 class="font-medium mb-2 text-gray-800">${section.title}</h5>
+                ${section.times.map(time => `<p class="mb-1 last:mb-0">${time}</p>`).join('')}
+            `;
+            hoursDiv.appendChild(sectionDiv);
+        });
+
+        infoCard.style.display = 'block';
+        overlay.style.display = 'block';
+    }
+
+    function closeInfoCard() {
+        infoCard.style.display = 'none';
+        overlay.style.display = 'none';
+    }
+
+    let currentRotation = 0;
+    let isSpinning = false;
+
+    spinButton.onclick = function() {
+        if (isSpinning) return;
+        
+        isSpinning = true;
+        spinButton.disabled = true;
+        pointer.classList.add('active');
+        resultBox.textContent = "En rotation... | 轉動中...";
+        closeInfoCard();
+
+        const baseRotation = 1800;
+        const randomOffset = Math.floor(Math.random() * 360);
+        const totalRotation = baseRotation + randomOffset;
+
+        currentRotation += totalRotation;
+        wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+        setTimeout(() => {
+            spinButton.disabled = false;
+            pointer.classList.remove('active');
+            isSpinning = false;
+            
+            const finalAngle = (360 - (currentRotation % 360)) % 360;
+            const segmentIndex = Math.floor((finalAngle / (360 / libraries.length))) % libraries.length;
+            const winningLibrary = libraries[segmentIndex];
+
+            resultBox.innerHTML = `${winningLibrary.fr}<br>${winningLibrary.zh}`;
+            showLibraryInfo(winningLibrary);
+        }, 4000);
+    };
+
+    // 點擊遮罩層時關閉資訊卡
+    overlay.onclick = closeInfoCard;
+
+    // 初始化轉盤
+    setupWheel();
+    </script>
+</body>
+</html>

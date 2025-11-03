@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巴黎圖書館轉盤 | Bibliothèques de Paris</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+        }
+
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #F87171 0deg 45deg,    /* 紅色 */
+                #FBBF24 45deg 90deg,   /* 琥珀色 */
+                #34D399 90deg 135deg,  /* 綠色 */
+                #60A5FA 135deg 180deg, /* 藍色 */
+                #A78BFA 180deg 225deg, /* 紫色 */
+                #F472B6 225deg 270deg, /* 粉色 */
+                #FB923C 270deg 315deg, /* 橙色 */
+                #94A3B8 315deg 360deg  /* 灰色 */
+            );
+            transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transform: rotate(0deg);
+        }
+
+        .text-item {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 50%;
+            height: 1px;
+            transform-origin: 0% 0%;
+        }
+        
+        .text-item span {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #111827;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-align: right;
+            width: 200px;
+            line-height: 1.2;
+        }
+
+        #pointer {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #DC2626;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4));
+        }
+
+        .wheel-center-dot {
+            width: 25px;
+            height: 25px;
+            background: #4B5563;
+            border-radius: 50%;
+            border: 4px solid #F9FAFB;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+
+    <div class="flex flex-col items-center gap-10 p-4">
+        
+        <h1 class="text-4xl font-bold tracking-tight">探索巴黎圖書館 | Découvrez les bibliothèques</h1>
+
+        <div class="relative flex flex-col items-center">
+            <div id="pointer" class="absolute -top-4 z-20"></div>
+
+            <div class="w-80 h-80 sm:w-96 sm:h-96 rounded-full overflow-hidden border-8 border-gray-700 shadow-2xl">
+                <div id="wheel" class="relative w-full h-full">
+                    <div class="absolute inset-0">
+                        <div class="text-item" style="transform: rotate(22.5deg);">
+                            <span>法國國家圖書館新館<br>BnF François-Mitterrand</span>
+                        </div>
+                        <div class="text-item" style="transform: rotate(67.5deg);">
+                            <span>馬薩蘭圖書館<br>Bibliothèque Mazarine</span>
+                        </div>
+                        <div class="text-item" style="transform: rotate(112.5deg);">
+                            <span>聖熱內維耶夫圖書館<br>Bibliothèque Sainte-Geneviève</span>
+                        </div>
+                        <div class="text-item" style="transform: rotate(157.5deg);">
+                            <span>法國國家圖書館黎塞留館<br>BnF Richelieu</span>
+                        </div>
+                        <div class="text-item" style="transform: rotate(202.5deg);">
+                            <span>福爾內圖書館<br>Bibliothèque Forney</span>
+                        </div>
+                        <div class="text-item" style="transform: rotate(247.5deg);">
+                            <span>軍械庫圖書館<br>Bibliothèque de l'Arsenal</span>
+                        </div>
+                        <div class="text-item" style="transform: rotate(292.5deg);">
+                            <span>巴黎市歷史圖書館<br>Bibliothèque Historique</span>
+                        </div>
+                        <div class="text-item" style="transform: rotate(337.5deg);">
+                            <span>龐畢度公共資訊圖書館<br>Bpi Centre Pompidou</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wheel-center-dot"></div>
+        </div>
+
+        <button id="spinButton" class="py-3 px-10 bg-red-600 text-white text-xl font-bold rounded-full shadow-lg transition-transform transform active:scale-95 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">
+            開始旋轉 | Tourner
+        </button>
+
+        <div id="resultBox" class="text-2xl font-semibold h-16 text-center">
+            點擊按鈕選擇您的目的地！<br>Cliquez pour choisir votre destination !
+        </div>
+    </div>
+
+    <script>
+        const wheel = document.getElementById('wheel');
+        const spinButton = document.getElementById('spinButton');
+        const resultBox = document.getElementById('resultBox');
+
+        const places = [
+            {fr: "BnF François-Mitterrand", zh: "法國國家圖書館新館"},
+            {fr: "Bibliothèque Mazarine", zh: "馬薩蘭圖書館"},
+            {fr: "Bibliothèque Sainte-Geneviève", zh: "聖熱內維耶夫圖書館"},
+            {fr: "BnF Richelieu", zh: "法國國家圖書館黎塞留館"},
+            {fr: "Bibliothèque Forney", zh: "福爾內圖書館"},
+            {fr: "Bibliothèque de l'Arsenal", zh: "軍械庫圖書館"},
+            {fr: "Bibliothèque Historique", zh: "巴黎市歷史圖書館"},
+            {fr: "Bpi Centre Pompidou", zh: "龐畢度公共資訊圖書館"}
+        ];
+        
+        let currentRotation = 0;
+
+        spinButton.onclick = function() {
+            spinButton.disabled = true;
+            resultBox.textContent = "轉動中... | En rotation...";
+
+            const baseRotation = 1800;
+            const randomOffset = Math.floor(Math.random() * 360);
+            const totalRotation = baseRotation + randomOffset;
+
+            currentRotation += totalRotation;
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+            setTimeout(() => {
+                spinButton.disabled = false;
+
+                const finalAngle = (360 - (currentRotation % 360)) % 360;
+                const segmentIndex = Math.floor(finalAngle / 45); // 改為45度一個區段
+                const winningPlace = places[segmentIndex];
+
+                resultBox.innerHTML = `恭喜！您的目的地是：<br>${winningPlace.zh}<br>${winningPlace.fr}`;
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
